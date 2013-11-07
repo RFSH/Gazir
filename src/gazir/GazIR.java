@@ -9,7 +9,7 @@ import doc.GazCollection;
 import doc.GazDocument;
 
 public interface GazIR {
-	void initialize();
+//	void initialize();
 	
 	void addCollection(GazCollection collection);
 	void addDocument(GazDocument document);
@@ -23,4 +23,5 @@ public interface GazIR {
 	GazCollection getCurrentCollection();
 	ArrayList<GazCollection> getCollections();
 	GazIndexManager getIndexManager();
+
 }
