@@ -7,5 +7,6 @@ public interface GazDocument {
 	String read(int amount);
 	String readLine();
 	void reset();
+	void close();
 	File getFile();	
 }

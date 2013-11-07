@@ -1,18 +1,32 @@
 package index;
 
+import doc.GazDocument;
+
 public class GazPosting {
-	private int docId;
+	private GazDocument document;
 	private int termFrequency;
 	
+	public GazPosting(GazDocument document){
+		this.document = document;
+		this.termFrequency = 0;
+	}
+	
+	public GazDocument getDocument(){
+		return document;
+	}
+	
 	public int getDocId() {
-		return docId;
+		return document.getId();
 	}
-	public void setDocId(int docId) {
-		this.docId = docId;
+	
+	public void increment(){
+		termFrequency++;
 	}
+	
 	public int getTermFrequency() {
 		return termFrequency;
 	}
+	
 	public void setTermFrequency(int termFrequency) {
 		this.termFrequency = termFrequency;
 	}

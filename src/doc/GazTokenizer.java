@@ -7,5 +7,5 @@ public interface GazTokenizer {
 	boolean hasNext();
 	Collection<String> tokenizeAll();
 	void setDocument(GazDocument document);
-	GazDocument getDocument(); 
+	GazDocument getDocument();
 }

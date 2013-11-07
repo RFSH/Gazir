@@ -77,6 +77,17 @@ public class ZDocument implements GazDocument{
 	}
 	
 	@Override
+	public void close() {
+		try {
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		fileOpen = false;
+		
+	}
+
+	@Override
 	public File getFile() {
 		return this.file;
 	}
