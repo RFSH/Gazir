@@ -1,14 +1,18 @@
 package gazir;
 
 import index.GazIndexManager;
+import index.GazPosting;
+import index.GazTerm;
 
 import java.util.Collection;
+
+import com.sun.tools.javac.util.List;
 
 import doc.GazCollection;
 import doc.GazDocument;
 
 public interface GazIR {
-	void initialize();
+//	void initialize();
 	
 	void addCollection(GazCollection collection);
 	void addDocument(GazDocument document);
@@ -23,4 +27,3 @@ public interface GazIR {
 	Collection<GazCollection> getCollections();
 	GazIndexManager getIndexManager();
 }
-
