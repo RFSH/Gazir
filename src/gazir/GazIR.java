@@ -23,4 +23,3 @@ public interface GazIR {
 	Collection<GazCollection> getCollections();
 	GazIndexManager getIndexManager();
 }
-
