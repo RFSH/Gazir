@@ -4,6 +4,7 @@ import index.GazIndexManager;
 import index.GazPosting;
 import index.GazTerm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import doc.GazCollection;
@@ -11,50 +12,15 @@ import doc.GazDocument;
 
 public class ZGazIR implements GazIR {
 	private GazCollection currenCollection;
-	Collection<GazCollection> collections;
+	ArrayList<GazCollection> collections;
 	private GazIndexManager indexManger;
 
 	public ZGazIR(GazCollection currenCollection, GazIndexManager indexManger) {
+		collections = new ArrayList<GazCollection>();
 		this.currenCollection = currenCollection;
 		this.indexManger = indexManger;
 	}
-
-	// TODO these functions should change indexManager too!
-
-	@Override
-	public void addCollection(GazCollection collection) {
-		if (currenCollection == null)
-			currenCollection = collection;
-		collections.add(collection);
-	}
-
-	@Override
-	public void addDocument(GazDocument document) {
-		// TODO if there's no currentCollection new and then addDoc
-	}
-
-	@Override
-	public void switchCollection(GazCollection collection) {
-		currenCollection = collection;
-		if (!collections.contains(collection))
-			collections.add(collection);
-	}
-
-	@Override
-	public GazCollection getCurrentCollection() {
-		return currenCollection;
-	}
-
-	@Override
-	public Collection<GazCollection> getCollections() {
-		return collections;
-	}
-
-	@Override
-	public GazIndexManager getIndexManager() {
-		return indexManger;
-	}
-
+	
 	@Override
 	public Collection<GazDocument> query(String query, int queryType) {
 		return query(query, queryType, 10);
@@ -80,7 +46,7 @@ public class ZGazIR implements GazIR {
 		case 0:
 			for (String string : queryTerms) {
 				for (GazTerm term : indexManger.getCurrentIndex()
-						.getDictionary()) {
+						.getDictionaryTerms()) {
 					if (term.getToken().equals(string)) {
 						if (temp == null)
 							temp = term.getPostingList();
@@ -119,5 +85,41 @@ public class ZGazIR implements GazIR {
 
 		return docs;
 	}
+	
 
+	// TODO these functions should change indexManager too!
+
+	@Override
+	public void addCollection(GazCollection collection) {
+		if (currenCollection == null)
+			currenCollection = collection;
+		collections.add(collection);
+	}
+
+	@Override
+	public void addDocument(GazDocument document) {
+		// TODO if there's no currentCollection new and then addDoc
+	}
+
+	@Override
+	public void switchCollection(GazCollection collection) {
+		currenCollection = collection;
+		if (!collections.contains(collection))
+			collections.add(collection);
+	}
+
+	@Override
+	public GazCollection getCurrentCollection() {
+		return currenCollection;
+	}
+
+	@Override
+	public ArrayList<GazCollection> getCollections() {
+		return collections;
+	}
+
+	@Override
+	public GazIndexManager getIndexManager() {
+		return indexManger;
+	}
 }

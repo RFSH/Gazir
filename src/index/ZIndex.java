@@ -16,7 +16,7 @@ public class ZIndex implements GazIndex {
 	@Override
 	public void indexDocument(GazDocument document) {
 		GazTokenizer tokenizer = new ZTokenizer(document);
-		GazTokenProcessor processor = new ZTokenProcessor(); // TODO NEW
+		GazTokenProcessor processor = new ZTokenProcessor();
 		while(tokenizer.hasNext()){
 			String token = tokenizer.next();
 			String pToken = processor.processToken(token);

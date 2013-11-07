@@ -16,24 +16,14 @@ public class UICommandInitializer {
 		showCommand.branch(new UICommand("collections") {
 			@Override
 			public void apply(UICommandOptions options) {
-				ArrayList<GazCollection> collections = gazir.getCollections();
-				for(GazCollection col : collections){
-					System.out.println(col.getId() + " " + col.getDocuments().size() + " documents");
-				}
+				UIActions.showCollections(gazir, options);
 			}
 		});
 		
 		showCommand.branch(new UICommand("documents") {
 			@Override
 			public void apply(UICommandOptions options) {
-				GazCollection currentCollection = gazir.getCurrentCollection();
-				if(currentCollection == null){
-					System.out.println("No collection selected.");
-					return;
-				}
-				for(GazDocument document : currentCollection.getDocuments()){
-					System.out.println(document.getId() + " " + document.getFile().getName());
-				}
+				UIActions.showDocuments(gazir, options);
 			}
 		});
 		
@@ -67,15 +57,7 @@ public class UICommandInitializer {
 			
 			@Override
 			public void apply(UICommandOptions options) {
-				int collectionId = Integer.parseInt(options.get("collection"));
-				try{
-					ArrayList<GazCollection> collections = gazir.getCollections();
-					GazCollection collection = collections.get(collectionId);
-					System.out.println("Using collection " + collectionId);
-				}catch(Exception e){
-					System.out.println("Failed to use collection");
-				}
-				
+				UIActions.useCollection(gazir, options);
 			}
 		});
 		useCommand.branch(collectionCommand);
@@ -105,8 +87,7 @@ public class UICommandInitializer {
 			
 			@Override
 			public void apply(UICommandOptions options) {
-				String index = options.get("index");
-				System.out.println("Using index " + index);
+				UIActions.useIndex(gazir, options);
 			}
 		});
 		useCommand.branch(indexCommand);
@@ -116,14 +97,70 @@ public class UICommandInitializer {
 
 	
 	public static UICommand makeLoadCommand(){
-		UICommand loadCommand = new UICommand("load"){
+		UICommand loadCommand = new UICommand("load");
+		
+		UICommand documentLoad = new UICommand("documents");
+		loadCommand.branch(documentLoad);
+		
+		documentLoad.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
 			
-		};
+			@Override
+			public String acceptedCommand() {
+				return "<file name>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("fileName", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.loadDocuments(gazir, options);
+			}
+		});
 		return loadCommand;
+	}
+	
+	public static UICommand makeNewCommand(){
+		UICommand newCommand = new UICommand("new");
+		
+		UICommand newCollection = new UICommand("collection");
+		newCommand.branch(newCollection);
+		
+		newCollection.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<collection name>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("name", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.newCollection(gazir, options);
+			}
+		});
+		return newCommand;
 	}
 	
 	
 	public static UICommand initializeCommands(GazIR gaz){
+		gazir = gaz;
 		UICommand root = new UICommand("root") {
 			public void apply(UICommandOptions options){
 				System.out.println("Root");
@@ -140,7 +177,7 @@ public class UICommandInitializer {
 		root.branch(makeShowCommand());
 		root.branch(makeUseCommand());
 		root.branch(makeLoadCommand());
-		
+		root.branch(makeNewCommand());
 		return root;
 	}
 }

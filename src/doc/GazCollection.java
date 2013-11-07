@@ -7,4 +7,5 @@ public interface GazCollection {
 	Collection<GazDocument> getDocuments();
 	void addDocument(GazDocument document);
 	int nextDocId();
+	String getName();
 }

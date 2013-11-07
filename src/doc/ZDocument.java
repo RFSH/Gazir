@@ -12,8 +12,7 @@ public class ZDocument implements GazDocument{
 	private BufferedReader reader;
 	private boolean fileOpen;
 	
-	public ZDocument(int id, File file) throws GazDocumentNotFoundException{
-		this.id = id;
+	public ZDocument(File file) throws GazDocumentNotFoundException{
 		if(!file.exists()){
 			throw new GazDocumentNotFoundException(file);
 		}
@@ -21,15 +20,15 @@ public class ZDocument implements GazDocument{
 		fileOpen = false;
 	}
 	
-	public ZDocument(int id, String fileName) throws GazDocumentNotFoundException{
-		this(id, new File(fileName));
+	public ZDocument(String fileName) throws GazDocumentNotFoundException{
+		this(new File(fileName));
 	}
 	
 	private boolean openFile(){
 		try {	
-			 reader = new BufferedReader(new FileReader(file));
-			 fileOpen = true;
-			 return true;
+			reader = new BufferedReader(new FileReader(file));
+			fileOpen = true;
+			return true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return false;
@@ -97,4 +96,17 @@ public class ZDocument implements GazDocument{
 		return this.id;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof GazDocument){
+			GazDocument doc = (GazDocument)obj;
+			return ((GazDocument) obj).getFile().equals(this.getFile());
+		}
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode() {
+		return file.hashCode();
+	}
 }

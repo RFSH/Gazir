@@ -9,11 +9,17 @@ public class ZCollection implements GazCollection{
 	private ArrayList<GazDocument> documents;
 	private int id;
 	private int nextDocId;
+	private String name;
 	
-	public ZCollection(){
+	public ZCollection(String name){
 		documents = new ArrayList<GazDocument>();
 		id = nextId++;
 		nextId = 0;
+		this.name = name;
+	}
+	
+	public ZCollection(){
+		this("---");
 	}
 		
 	public Collection<GazDocument> getDocuments() {
@@ -35,5 +41,7 @@ public class ZCollection implements GazCollection{
 		return this.id;
 	}
 	
-	
+	public String getName(){
+		return name;
+	}
 }

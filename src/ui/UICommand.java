@@ -20,6 +20,8 @@ public class UICommand {
 	}
 	
 	private void printPossibleOptions(){
+		if(subcommands.size() == 0)
+			return;
 		System.out.println("Possible options are:");
 		for(UICommand com : subcommands){
 			System.out.println("\t" + com.acceptedCommand());
