@@ -34,4 +34,6 @@ public class ZCollection implements GazCollection{
 	public int getId() {
 		return this.id;
 	}
+	
+	
 }

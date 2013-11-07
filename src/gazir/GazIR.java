@@ -2,6 +2,7 @@ package gazir;
 
 import index.GazIndexManager;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import doc.GazCollection;
@@ -20,6 +21,6 @@ public interface GazIR {
 	Collection<GazDocument> query(String query);
 	
 	GazCollection getCurrentCollection();
-	Collection<GazCollection> getCollections();
+	ArrayList<GazCollection> getCollections();
 	GazIndexManager getIndexManager();
 }
