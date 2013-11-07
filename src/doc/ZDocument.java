@@ -11,6 +11,7 @@ public class ZDocument implements GazDocument{
 	private File file;
 	private BufferedReader reader;
 	private boolean fileOpen;
+	
 	public ZDocument(int id, File file) throws GazDocumentNotFoundException{
 		this.id = id;
 		if(!file.exists()){
@@ -50,6 +51,29 @@ public class ZDocument implements GazDocument{
 		}
 		
 		return new String(buf);
+	}
+	
+	public String readLine(){
+		if(fileOpen && !openFile()){
+			return "";
+		}
+		
+		try {
+			return reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	public void reset(){
+		if(fileOpen){
+			try {
+				reader.reset();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Override
