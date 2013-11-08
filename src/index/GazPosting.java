@@ -1,17 +1,16 @@
 package index;
 
-import doc.GazDocument;
 
 public class GazPosting {
-	private GazDocument document;
+	private GazIndexedDocument document;
 	private int termFrequency;
 	
-	public GazPosting(GazDocument document){
+	public GazPosting(GazIndexedDocument document){
 		this.document = document;
 		this.termFrequency = 0;
 	}
 	
-	public GazDocument getDocument(){
+	public GazIndexedDocument getDocument(){
 		return document;
 	}
 	
