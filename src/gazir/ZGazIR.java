@@ -6,8 +6,12 @@ import index.GazTerm;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import doc.GazCollection;
 import doc.GazDocument;
@@ -32,146 +36,189 @@ public class ZGazIR implements GazIR {
 	public Collection<GazDocument> query(String query) {
 		return query(query, 0, 10);
 	}
+	
+	public Collection<GazDocument> booleanQuery(String queryTerms[], int maxResults){
+		List<GazDocument> documents = new ArrayList<GazDocument>();
+		Collection<GazPosting> temp = null;
+		for (String string : queryTerms) {
+			for (GazTerm term : indexManger.getCurrentIndex()
+					.getDictionaryTerms()) {
+				if (term.getToken().equals(string)) {
+					if (temp == null)
+						temp = term.getPostingList();
+					else
+						temp.retainAll(term.getPostingList());
+				}
+			}
+		}
+		for (GazPosting posting : temp) {
+			documents.add(posting.getDocument().getDocument());
+			if (documents.size() > maxResults)
+				break;
+		}
+		return documents;
+	}
 
+	public Collection<GazDocument> rankDocs(String queryTerms[], int maxResults, boolean tfBased){
+		Collection<Collection<GazPosting>> postings = findPostings(queryTerms);
+		
+		GazComparator gazCompare = new GazComparator();
+		Map<GazDocument, Integer> queryTermFrequencies = new HashMap<GazDocument, Integer>();
+		
+		for (Collection<GazPosting> gazPosting : postings) {
+			for (GazPosting posting : gazPosting) {
+				GazDocument doc = posting.getDocument().getDocument();
+				if (queryTermFrequencies.get(doc) == null){
+					if(tfBased)
+						queryTermFrequencies.put(doc, posting.getTermFrequency());
+					else
+						queryTermFrequencies.put(doc, 1);
+				}else{
+					if(tfBased)
+						queryTermFrequencies.put(doc, queryTermFrequencies.get(doc)	+ posting.getTermFrequency());
+					else
+						queryTermFrequencies.put(doc, queryTermFrequencies.get(doc)	+ 1);
+				}
+			}
+		}
+		
+		TreeMap<GazDocument, Integer> sortedMap = new TreeMap<GazDocument, Integer>(gazCompare);
+		gazCompare.setFreqMap(queryTermFrequencies);
+		sortedMap.putAll(queryTermFrequencies);
+		ArrayList<GazDocument> results = new ArrayList<GazDocument>();
+		
+		results.addAll(sortedMap.keySet());
+		if(maxResults == -1)
+			return results;
+		else
+			return results.subList(0, maxResults);
+	}
+	
+	public Collection<GazDocument> rankDocAdvanced(String[] queryTokens, int maxResults, boolean superAdvanced){
+		HashMap<String, Integer> termId = new HashMap<String, Integer>();
+		for(int i = 0; i < queryTokens.length; i++){
+			if(termId.get(queryTokens[i]) == null)
+				termId.put(queryTokens[i], i);
+		}
+		
+		int queryCount = termId.keySet().size();
+		double[] queryVector = new double[queryCount];
+		GazTerm[] queryTerms = new GazTerm[queryCount];
+		for(int i = 0; i < queryTokens.length; i++){
+			queryVector[termId.get(queryTokens[i])]++;
+		}
+		
+		for(String token : termId.keySet()){
+			GazTerm term = indexManger.getCurrentIndex().getTerm(token);
+			int ind = termId.get(token);
+			queryTerms[ind] = term;
+			int df = term.getFrequency();
+			queryVector[ind] = Math.log10((double)currenCollection.getDocuments().size()/df) * (1 + Math.log10(queryVector[ind]));
+		}
+		
+		if(superAdvanced){
+			double vecSize = 0;
+			for(int i = 0; i < queryVector.length; i++)
+				vecSize += queryVector[i] * queryVector[i];
+			vecSize = Math.sqrt(vecSize);
+			for(int i = 0; i < queryVector.length; i++)
+				queryVector[i] /= vecSize;
+		}
+		
+		Map<Integer, Double[]> docVecMap = new HashMap<Integer, Double[]>();
+		Map<Integer, GazDocument> docMap = new HashMap<Integer, GazDocument>();
+		for (GazTerm term : queryTerms) {
+			for(GazPosting posting : term.getPostingList()){
+				int docId = posting.getDocId();
+				Double[] vec = docVecMap.get(docId);
+				if(vec == null){
+					vec = new Double[queryCount];
+					for(int i = 0; i < queryCount;  i++)
+						vec[i] = 0.0;
+					docVecMap.put(docId, vec);
+					docMap.put(docId, posting.getDocument().getDocument());
+				}
+				vec[termId.get(term.getToken())]++;
+			}
+		}
+		
+		Comparator<GazDocScore> gazCompare = new Comparator<GazDocScore>() {
+			@Override
+			public int compare(GazDocScore o1, GazDocScore o2) {
+				return (o1.getScore() >= o2.getScore()) ? 1 : -1 ;
+			}
+		};
+		TreeSet<GazDocScore> docScoreSet = new TreeSet<GazDocScore>(gazCompare);
+		
+		for(Integer docId : docVecMap.keySet()){
+			Double[] docVec = docVecMap.get(docId);
+			GazDocument document = docMap.get(docId);
+			
+			if(superAdvanced){
+				double vecSize = 0;
+				for(int i = 0; i < docVec.length; i++)
+					vecSize += docVec[i] * docVec[i];
+				vecSize = Math.sqrt(vecSize);
+				for(int i = 0; i < docVec.length; i++)
+					docVec[i] /= vecSize;
+			}
+			
+			// Compute score
+			double score = 0;
+			for(int i = 0; i < docVec.length; i++){
+				score += docVec[i] * queryVector[i];
+			}
+			
+			docScoreSet.add(new GazDocScore(document, score));
+		}
+		
+		ArrayList<GazDocument> sortedDocs = new ArrayList<GazDocument>();
+		for(GazDocScore docScore : docScoreSet){
+			sortedDocs.add(docScore.getDocument());
+			if(maxResults != -1 && sortedDocs.size() >= maxResults)
+				break;
+		}
+		
+		return sortedDocs;
+	}
 	@Override
 	public Collection<GazDocument> query(String query, int queryType,
 			int maxResults) {
-		Collection<Integer> docIDs = new ArrayList<Integer>();
-		Collection<GazDocument> docs = new ArrayList<GazDocument>();
-		String queryTerms[] = query.split(" ");
+	
+		String queryTokens[] = query.split(" ");
 
 		// TODO handle stopwords!
 
-		Collection<Collection<GazPosting>> postings = null;
-		if (queryType == 2 && queryType==1) {
-			postings = findPostings(queryTerms);
-		}
+//		Collection<Collection<GazPosting>> postings = null;
+//		if (queryType == 2 && queryType==1) {
+//			postings = findPostings(queryTerms);
+//		}
 
 		switch (queryType) {
 		case 0:
-			Collection<GazPosting> temp = null;
-			for (String string : queryTerms) {
-				for (GazTerm term : indexManger.getCurrentIndex()
-						.getDictionaryTerms()) {
-					if (term.getToken().equals(string)) {
-						if (temp == null)
-							temp = term.getPostingList();
-						else
-							// TODO change equals for posting
-							temp.retainAll(term.getPostingList());
-					}
-				}
-			}
-			for (GazPosting posting : temp) {
-				docIDs.add(posting.getDocId());
-				if (docIDs.size() > maxResults)
-					break;
-			}
-
-			break;
+			return booleanQuery(queryTokens, maxResults);
 		case 1:
-			TreeMap<Integer, Integer> queryTermFrequencies = new TreeMap<Integer, Integer>();
-			for (Collection<GazPosting> gazPosting : postings) {
-				for (GazPosting posting : gazPosting) {
-					if (queryTermFrequencies.get(posting.getDocId()) == null)
-						queryTermFrequencies.put(posting.getDocId(),
-								1);
-					else
-						queryTermFrequencies.put(posting.getDocId(),
-								queryTermFrequencies.get(posting.getDocId())
-										+1);
-				}
-			}
-			
-			//TODO sort by value
-			
-			break;
+			return rankDocs(queryTokens, maxResults, false);
 		case 2:
-			TreeMap<Integer, Integer> termFrequencies = new TreeMap<Integer, Integer>();
-			for (Collection<GazPosting> gazPosting : postings) {
-				for (GazPosting posting : gazPosting) {
-					if (termFrequencies.get(posting.getDocId()) == null)
-						termFrequencies.put(posting.getDocId(),
-								posting.getTermFrequency());
-					else
-						termFrequencies.put(posting.getDocId(),
-								termFrequencies.get(posting.getDocId())
-										+ posting.getTermFrequency());
-				}
-			}
-
-			// TODO sort termFrequencies by value and those are the fucking
-			// answers modafucka!
-
-			break;
+			return rankDocs(queryTokens, maxResults, true);
 		case 3:
-			TreeMap<GazTerm, Double> tfidfQuery = new TreeMap<GazTerm, Double>();
-			for (String string : queryTerms) {
-				for (GazTerm term : indexManger.getCurrentIndex()
-						.getDictionaryTerms()) {
-					if (term.getToken().equals(string)) {
-						if (tfidfQuery.get(term) == null) {
-							tfidfQuery.put(term, 0.0);
-						} else {
-							tfidfQuery.put(term, tfidfQuery.get(term) + 1);
-						}
-					}
-				}
-			}
-			String[] termMap = new String[tfidfQuery.entrySet().size()];
-			int i=0;
-			for (Map.Entry<GazTerm, Double> entry : tfidfQuery.entrySet()) {
-				// System.out.println(entry.getKey() + "/" + entry.getValue());
-				termMap[i]= entry.getKey().getToken();
-				i++;
-				tfidfQuery.put(
-						entry.getKey(),
-						(Math.log10(currenCollection.getDocuments().size()/entry.getKey()
-								.getFrequency()))
-								* (1 + Math.log10(entry.getValue())));
-			}
-			
-			//TODO complete this shit!
-			// tfdoc< docID, termha
-			TreeMap<Integer, int[]> tfDoc = new TreeMap<Integer, int[]>();
-//			ArrayList<Integer> tfDocID = new ArrayList<Integer>();
-			for (GazTerm term : tfidfQuery.keySet()) {
-				for (GazPosting post : term.getPostingList()) {
-					if(tfDocID.contains(post.getDocId())){
-						for (int j = 0; j < termMap.length; j++) {
-							if(term.getToken().equals(termMap[j]))
-								tfDoc.get(post.getDocId())[j] = post.getTermFrequency();							
-						}
-					}else{
-						tfDocID.add((post.getDocId()));
-//						tfDoc.add()
-					}
-				}
-			}
-			break;
+			return rankDocAdvanced(queryTokens, maxResults, false);
 		case 4:
-
-			break;
-
+			return rankDocAdvanced(queryTokens, maxResults, true);
 		default:
 			// TODO create exception class
 			System.err.println("query Type is not defined");
 			break;
 		}
 
-		for (GazDocument doc : currenCollection.getDocuments()) {
-			for (Integer docId : docIDs) {
-				if (docId == doc.getId())
-					docs.add(doc);
-			}
-		}
+		
 
-		return docs;
+		return null;
 	}
 
 	@SuppressWarnings("null")
 	private Collection<Collection<GazPosting>> findPostings(String[] queryTerms) {
-		Collection<Collection<GazPosting>> postings = null;
+		Collection<Collection<GazPosting>> postings = new ArrayList<Collection<GazPosting>>();
 
 		for (String string : queryTerms) {
 			for (GazTerm term : indexManger.getCurrentIndex().getDictionaryTerms()) {
@@ -214,4 +261,25 @@ public class ZGazIR implements GazIR {
 		return indexManger;
 	}
 
+}
+
+class GazDocScore{
+	private GazDocument document;
+	private double score;
+	public GazDocScore(GazDocument document, double score){
+		this.document = document;
+		this.score = score;
+	}
+	public GazDocument getDocument() {
+		return document;
+	}
+	public void setDocument(GazDocument document) {
+		this.document = document;
+	}
+	public double getScore() {
+		return score;
+	}
+	public void setScore(double score) {
+		this.score = score;
+	}
 }

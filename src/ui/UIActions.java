@@ -206,6 +206,16 @@ public class UIActions {
 				System.out.print(", ");
 			System.out.print(postings.get(i).getDocument() + " [" + postings.get(i).getTermFrequency() + "]");
 		}
-		
+		System.out.println();
+	}
+	
+	public static void query(GazIR gazir, UICommandOptions options){
+		String queryString = options.get("query");
+		System.out.println("Querying " + queryString);
+		Collection<GazDocument> results = gazir.query(queryString, 3);
+		for(GazDocument doc : results){
+			System.out.print(doc + " ");
+		}
+		System.out.println();
 	}
 }

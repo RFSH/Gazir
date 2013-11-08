@@ -40,6 +40,7 @@ public class ZIndex implements GazIndex {
 			
 			// Add to end posting
 			GazPosting posting = term.getLastPosting();
+//			System.out.println(pToken + " " + posting);
 			if(posting == null || !posting.getDocument().equals(document)){
 				posting = new GazPosting(indDoc);
 				term.pushPosting(posting);

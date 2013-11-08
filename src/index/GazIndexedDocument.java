@@ -24,6 +24,9 @@ public class GazIndexedDocument {
 		if(obj instanceof GazIndexedDocument){
 			GazIndexedDocument indDoc = (GazIndexedDocument)obj;
 			return document.equals(indDoc.getDocument());
+		}else if (obj instanceof GazDocument){
+			GazDocument doc = (GazDocument)obj;
+			return document.equals(doc);
 		}
 		return super.equals(obj);
 	}

@@ -238,6 +238,34 @@ public class UICommandInitializer {
 		return indexCommand;
 	}
 	
+	public static UICommand makeQueryCommand(){
+		UICommand queryCommand = new UICommand("query");
+		queryCommand.branch(new UICommand(){
+			
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			@Override
+			public String acceptedCommand() {
+				return "<query string>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("query", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.query(gazir, options);
+			}
+		});
+		
+		
+		return queryCommand;
+	}
 	public static UICommand initializeCommands(GazIR gaz){
 		gazir = gaz;
 		UICommand root = new UICommand("root") {
@@ -258,6 +286,7 @@ public class UICommandInitializer {
 		root.branch(makeLoadCommand());
 		root.branch(makeNewCommand());
 		root.branch(makeIndexCommand());
+		root.branch(makeQueryCommand());
 		return root;
 	}
-}
+}// load documents /home/hadi/Uni/MIR/project/test/Hadi

@@ -9,10 +9,15 @@ public class UICommand {
 	public UICommand(String commandText){
 		this.commandText = commandText;
 		subcommands = new ArrayList<UICommand>();
+		init();
 	}
 	
 	public UICommand(){
 		this("");
+	}
+
+	public void init(){
+		
 	}
 	
 	public void branch(UICommand command){
@@ -36,7 +41,15 @@ public class UICommand {
 		}else{
 			String rest;
 			String nextCommand;
-			if(!restCommand.contains(" ")){
+			if(restCommand.startsWith("\"")){
+				int p1 = restCommand.indexOf("\"", 1) + 1;
+				if(p1 == 0){
+					System.out.println("Incompete string");
+					return;
+				}
+				nextCommand = restCommand.substring(1, p1-1);
+				rest = restCommand.substring(p1);
+			}else if(!restCommand.contains(" ")){
 				rest = "";
 				nextCommand = restCommand; 
 			}else{

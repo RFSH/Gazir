@@ -36,7 +36,8 @@ public class ZTokenizer implements GazTokenizer {
 		this.document = document;
 		document.reset();
 		nextLine = document.readLine();
-		tokenizer = new StringTokenizer(nextLine);
+		if(nextLine != null)
+			tokenizer = new StringTokenizer(nextLine);
 	}
 
 	

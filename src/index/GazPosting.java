@@ -34,7 +34,8 @@ public class GazPosting {
 	public boolean equals(Object obj) {
 		if(obj instanceof GazPosting){
 			GazPosting pos = (GazPosting)obj;
-			return pos.document.equals(document);
+			return pos.document.getId() == document.getId();
+//			return pos.document.equals(document);
 		}
 		return super.equals(obj);
 	}
