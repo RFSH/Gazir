@@ -10,6 +10,7 @@ public class ZCollection implements GazCollection{
 	
 	private ArrayList<GazDocument> documents;
 	private Map<String, GazDocument> documentMap;
+	private Map<Integer, GazDocument> idMap;
 	private int id;
 	private int nextDocId;
 	private String name;
@@ -17,6 +18,7 @@ public class ZCollection implements GazCollection{
 	public ZCollection(String name){
 		documents = new ArrayList<GazDocument>();
 		documentMap = new HashMap<String, GazDocument>();
+		idMap = new HashMap<Integer, GazDocument>();
 		id = nextId++;
 		nextId = 0;
 		this.name = name;
@@ -34,11 +36,17 @@ public class ZCollection implements GazCollection{
 	public void addDocument(GazDocument document) {
 		documents.add(document);
 		documentMap.put(document.getName(), document);
+		idMap.put(document.getId(), document);
 	}
 	
 	@Override
 	public GazDocument getDocumentByName(String name) {
 		return documentMap.get(name);
+	}
+	
+	@Override
+	public GazDocument getDocumentById(int id) {
+		return idMap.get(id);
 	}
 	
 	@Override

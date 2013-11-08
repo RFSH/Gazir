@@ -266,6 +266,53 @@ public class UICommandInitializer {
 		
 		return queryCommand;
 	}
+	
+	public static UICommand makeEvalCommand(){
+		UICommand evalCommand = new UICommand("eval");
+		UICommand queryCommand = new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			@Override
+			public String acceptedCommand() {
+				return "<query directory path>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("queryDir", command);
+			}
+		};
+		evalCommand.branch(queryCommand);
+		
+		queryCommand.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			@Override
+			public String acceptedCommand() {
+				return "<relevancy judgement file>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("relFile", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.eval(gazir, options);
+			}
+		});
+		
+		return evalCommand;
+	}
+	
+
 	public static UICommand initializeCommands(GazIR gaz){
 		gazir = gaz;
 		UICommand root = new UICommand("root") {
@@ -287,6 +334,7 @@ public class UICommandInitializer {
 		root.branch(makeNewCommand());
 		root.branch(makeIndexCommand());
 		root.branch(makeQueryCommand());
+		root.branch(makeEvalCommand());
 		return root;
 	}
 }// load documents /home/hadi/Uni/MIR/project/test/Hadi

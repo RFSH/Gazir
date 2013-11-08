@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ZDocument implements GazDocument{
 	private int id;
@@ -18,6 +20,14 @@ public class ZDocument implements GazDocument{
 		}
 		this.file = file;
 		fileOpen = false;
+		
+		Pattern p = Pattern.compile("-?\\d+");
+		Matcher m = p.matcher(file.getName());
+		if(m.find()){
+			this.id = Integer.parseInt(m.group());
+		}else{
+			this.id = 0;
+		}
 	}
 	
 	public ZDocument(String fileName) throws GazDocumentNotFoundException{
@@ -37,10 +47,27 @@ public class ZDocument implements GazDocument{
 	
 	@Override
 	public String read(int amount) {
-		if(fileOpen && !openFile()){
+		if(!fileOpen && !openFile()){
 			return "";
 		}
 		char[] buf = new char[amount];
+		
+		try {
+			reader.read(buf);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+		
+		return new String(buf);
+	}
+	
+	@Override
+	public String readAll() {
+		if(!fileOpen && !openFile()){
+			return "";
+		}
+		char[] buf = new char[(int)file.length()];
 		
 		try {
 			reader.read(buf);

@@ -18,6 +18,9 @@ import doc.GazDocument;
 import doc.GazDocumentNotFoundException;
 import doc.ZCollection;
 import doc.ZDocument;
+import eval.GazEvaluator;
+import eval.GazTestLoader;
+import eval.GazTestQuery;
 
 public class UIActions {
 	
@@ -217,5 +220,37 @@ public class UIActions {
 			System.out.print(doc + " ");
 		}
 		System.out.println();
+	}
+	
+	public static void eval(GazIR gazir, UICommandOptions options){
+		File queryDir = new File(options.get("queryDir"));
+		File relFile = new File(options.get("relFile"));
+		
+		if(!queryDir.exists()){
+			System.out.println(options.get("queryDir") + " does not exist");
+			return;
+		}
+		if(!queryDir.isDirectory()){
+			System.out.println("Please enter query directory, not file.");
+		}
+		if(!relFile.exists()){
+			System.out.println(options.get("relFile") + " does not exist");
+			return;
+		}
+		if(!relFile.isDirectory()){
+			System.out.println("Relevency file is not a file.");
+		}
+		if(gazir.getCurrentCollection() == null){
+			System.out.println("Please select collection");
+			return;
+		}
+		
+		GazTestLoader loader = new GazTestLoader(gazir.getCurrentCollection(), queryDir, relFile);
+		
+		List<GazTestQuery> tests = loader.loadTests();
+		
+		GazEvaluator evaluator = new GazEvaluator(tests);
+		System.out.println("Running " + tests.size() + " test queries...");
+		evaluator.evaluate();
 	}
 }

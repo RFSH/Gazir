@@ -1,9 +1,9 @@
 package eval;
 
-import java.util.Collection;
+import java.util.List;
 
 public class GazEvaluator {
-	public GazEvaluator(Collection<GazTestQuery> tests){
+	public GazEvaluator(List<GazTestQuery> tests){
 		
 	}
 	
