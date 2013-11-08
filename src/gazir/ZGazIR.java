@@ -60,7 +60,7 @@ public class ZGazIR implements GazIR {
 		if(temp != null){
 			for (GazPosting posting : temp) {
 				documents.add(posting.getDocument().getDocument());
-				if (documents.size() > maxResults)
+				if (maxResults != -1 && documents.size() >= maxResults)
 					break;
 			}
 		}

@@ -1,5 +1,6 @@
 package index;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +13,7 @@ import doc.GazDocument;
 import doc.GazTokenizer;
 import doc.ZTokenizer;
 
-class Frequency implements Comparable<Frequency>{
+class Frequency implements Comparable<Frequency>, Serializable{
 	private int frequency;
 	private String token;
 	public Frequency(String token){

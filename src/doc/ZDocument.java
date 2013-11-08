@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class ZDocument implements GazDocument{
 	private int id;
 	private File file;
-	private BufferedReader reader;
+	transient private BufferedReader reader;
 	private boolean fileOpen;
 	
 	public ZDocument(File file) throws GazDocumentNotFoundException{

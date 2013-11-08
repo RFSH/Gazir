@@ -1,8 +1,10 @@
 package index;
 
+import java.io.Serializable;
+
 import doc.GazDocument;
 
-public class GazIndexedDocument {
+public class GazIndexedDocument implements Serializable{
 	private int id;
 	private GazDocument document;
 	

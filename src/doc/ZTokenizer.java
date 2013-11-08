@@ -39,8 +39,8 @@ public class ZTokenizer implements GazTokenizer {
 			tokenizer = new StringTokenizer(nextLine);
 		}
 		String s = tokenizer.nextToken().toLowerCase();
-		if(s.matches("[.,,]*")){
-			return next_();
+		if(!s.matches("[.@,\"]*\\w+(\\w*[.@,\"]*)*")){
+			return (s != null && !s.equals(".") ? s : next_());
 		}
 		return s;
 	}

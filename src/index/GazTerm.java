@@ -1,9 +1,10 @@
 package index;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GazTerm {
+public class GazTerm implements Serializable{
 	private String token;
 	private int frequency;
 	private ArrayList<GazPosting> postingList;

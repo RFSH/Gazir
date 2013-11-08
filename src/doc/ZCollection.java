@@ -1,11 +1,12 @@
 package doc;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ZCollection implements GazCollection{
+public class ZCollection implements GazCollection, Serializable{
 	private static int nextId = 0;
 	
 	private ArrayList<GazDocument> documents;

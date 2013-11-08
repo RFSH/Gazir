@@ -1,6 +1,15 @@
 package ui;
 
 import gazir.GazIR;
+import index.GazIndex;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class UICommandInitializer {
 	private static GazIR gazir;
@@ -190,6 +199,32 @@ public class UICommandInitializer {
 			@Override
 			public void apply(UICommandOptions options) {
 				UIActions.loadStopWords(gazir, options);
+			}
+		});
+		
+		UICommand indexCommand = new UICommand("index");
+		loadCommand.branch(indexCommand);
+		
+		indexCommand.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<index file name>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("fileName", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.loadIndex(gazir, options);
 			}
 		});
 		return loadCommand;
@@ -445,6 +480,33 @@ public class UICommandInitializer {
 		return biwordCommand;
 	}
 	
+	public static UICommand makeSaveCommand(){
+		UICommand saveCommand = new UICommand("save");
+		UICommand saveCommand2 = new UICommand("index");
+		saveCommand.branch(saveCommand2);
+		saveCommand2.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			@Override
+			public String acceptedCommand() {
+				return "<file name>";
+			}
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("fileName", command);
+			}
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.saveIndex(gazir, options);
+			}
+		});
+	
+		return saveCommand;
+	}
+	
 	public static UICommand initializeCommands(GazIR gaz){
 		gazir = gaz;
 		UICommand root = new UICommand("root") {
@@ -469,6 +531,9 @@ public class UICommandInitializer {
 		root.branch(makeQueryCommand());
 		root.branch(makeEvalCommand());
 		root.branch(makeBiwordCommand());
+		root.branch(makeSaveCommand());
+		
 		return root;
 	}
 }// load documents /home/hadi/Uni/MIR/project/test/Hadi
+

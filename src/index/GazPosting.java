@@ -1,7 +1,9 @@
 package index;
 
+import java.io.Serializable;
 
-public class GazPosting {
+
+public class GazPosting implements Serializable {
 	private GazIndexedDocument document;
 	private int termFrequency;
 	

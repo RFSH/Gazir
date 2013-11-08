@@ -1,8 +1,9 @@
 package doc;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface GazCollection {
+public interface GazCollection extends Serializable {
 	int getId();
 	List<GazDocument> getDocuments();
 	void addDocument(GazDocument document);
