@@ -1,5 +1,6 @@
 package gazir;
 
+import index.GazDictionary;
 import index.GazIndexManager;
 import index.GazPosting;
 import index.GazTerm;
@@ -20,7 +21,8 @@ public class ZGazIR implements GazIR {
 	private GazCollection currenCollection;
 	ArrayList<GazCollection> collections;
 	private GazIndexManager indexManger;
-
+	private GazDictionary biword;
+	
 	public ZGazIR(GazCollection currenCollection, GazIndexManager indexManger) {
 		collections = new ArrayList<GazCollection>();
 		this.currenCollection = currenCollection;
@@ -113,7 +115,7 @@ public class ZGazIR implements GazIR {
 			int ind = termId.get(token);
 			queryTerms[ind] = term;
 			if(term != null){
-				int df = term.getFrequency();
+				int df = term.getDocFrequency();
 				queryVector[ind] = Math.log10((double)currenCollection.getDocuments().size()/df) * (1 + Math.log10(queryVector[ind]));
 			}else{
 				queryVector[ind] = 0;
@@ -266,7 +268,15 @@ public class ZGazIR implements GazIR {
 	public GazIndexManager getIndexManager() {
 		return indexManger;
 	}
-
+	
+	@Override
+	public GazDictionary getBiword() {
+		return biword;
+	}
+	
+	public void setBiword(GazDictionary biword){
+		this.biword = biword;
+	}
 }
 
 class GazDocScore{

@@ -1,6 +1,8 @@
 package ui;
 
 import gazir.GazIR;
+import index.GazBiword;
+import index.GazDictionary;
 import index.GazIndex;
 import index.GazPosting;
 import index.GazTerm;
@@ -138,7 +140,7 @@ public class UIActions {
 				}
 			}
 			System.out.println("Indexing document " + doc.getName());
-			index.indexDocument(doc);
+			index.indexDocument(doc, gazir.getBiword());
 		}else{
 			List<GazDocument> documents = collection.getDocuments();
 			int count = 0;
@@ -146,7 +148,7 @@ public class UIActions {
 				count++;
 				
 				System.out.print(String.format("\rIndexing   %-30s [%d/%d]", doc.getName(), count, documents.size()));
-				index.indexDocument(doc);
+				index.indexDocument(doc, gazir.getBiword());
 			}
 			System.out.println();
 		}
@@ -252,5 +254,29 @@ public class UIActions {
 		GazEvaluator evaluator = new GazEvaluator(tests, gazir);
 		System.out.println("Running " + tests.size() + " test queries...");
 		evaluator.evaluate();
+	}
+	
+	public static void biwordInit(GazIR gazir, UICommandOptions options){
+		if(gazir.getCurrentCollection() == null){
+			System.out.println("No collection selected");
+			return;
+		}
+		
+		GazBiword biword = new GazBiword();
+		GazDictionary biwordDic = biword.initialize(gazir.getCurrentCollection());
+		gazir.setBiword(biwordDic);
+	}
+	
+	public static void biwordList(GazIR gazir, UICommandOptions options){
+		if(gazir.getBiword() == null){
+			System.out.println("Biword not initalized");
+			return;
+		}
+		
+		GazDictionary biword = gazir.getBiword();
+		Collection<GazTerm> terms = biword.getTerms();
+		for(GazTerm term: terms){
+			System.out.println(String.format("%-15s: %d",term.getToken(), term.getFrequency()));
+		}
 	}
 }

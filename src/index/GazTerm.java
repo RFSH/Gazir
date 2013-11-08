@@ -25,7 +25,11 @@ public class GazTerm {
 	}
 	
 	public int getFrequency(){
-		return frequency;
+		return this.frequency;
+	}
+	
+	public int getDocFrequency(){
+		return postingList.size();
 	}
 	
 	public void increment(){

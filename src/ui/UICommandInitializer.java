@@ -312,7 +312,23 @@ public class UICommandInitializer {
 		return evalCommand;
 	}
 	
-
+	public static UICommand makeBiwordCommand(){
+		UICommand biwordCommand = new UICommand("biword");
+		biwordCommand.branch(new UICommand("init"){
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.biwordInit(gazir, options);
+			}
+		});
+		biwordCommand.branch(new UICommand("list"){
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.biwordList(gazir, options);
+			}
+		});
+		return biwordCommand;
+	}
+	
 	public static UICommand initializeCommands(GazIR gaz){
 		gazir = gaz;
 		UICommand root = new UICommand("root") {
@@ -335,6 +351,7 @@ public class UICommandInitializer {
 		root.branch(makeIndexCommand());
 		root.branch(makeQueryCommand());
 		root.branch(makeEvalCommand());
+		root.branch(makeBiwordCommand());
 		return root;
 	}
 }// load documents /home/hadi/Uni/MIR/project/test/Hadi

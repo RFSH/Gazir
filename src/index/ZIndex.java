@@ -18,7 +18,7 @@ public class ZIndex implements GazIndex {
 	}	
 	
 	@Override
-	public void indexDocument(GazDocument document) {
+	public void indexDocument(GazDocument document, GazDictionary biword) {
 		GazIndexedDocument indDoc = new GazIndexedDocument(documentSet.size(), document);
 		if(documentSet.contains(indDoc)){
 			System.out.println("Document already indexed");
@@ -26,17 +26,27 @@ public class ZIndex implements GazIndex {
 		}
 		
 		documentSet.add(indDoc);
-		GazTokenizer tokenizer = new ZTokenizer(document);
+		GazTokenizer tokenizer = new ZTokenizer(document, biword);
 		GazTokenProcessor processor = new ZTokenProcessor();
 		while(tokenizer.hasNext()){
 			String token = tokenizer.next();
-			String pToken = processor.processToken(token);
-			
-			GazTerm term = dictionary.findTerm(pToken);
-			if(term == null){
-				term = new GazTerm(pToken);
-				dictionary.addTerm(pToken, term);
+			GazTerm term;
+			String pToken;
+			if(biword != null && biword.findTerm(token) != null){
+				term = biword.findTerm(token);
+				pToken = token;
+				if(dictionary.findTerm(token) == null){
+					dictionary.addTerm(token, term);
+				}
+			}else{
+				pToken = processor.processToken(token);
+				term = dictionary.findTerm(pToken);
+				if(term == null){
+					term = new GazTerm(pToken);
+					dictionary.addTerm(pToken, term);
+				}
 			}
+			
 			
 			// Add to end posting
 			GazPosting posting = term.getLastPosting();
@@ -49,6 +59,7 @@ public class ZIndex implements GazIndex {
 			// Increase frequency
 			posting.increment();
 		}
+		tokenizer.getDocument().close();
 	}
 	
 	@Override

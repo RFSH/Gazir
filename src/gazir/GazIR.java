@@ -1,5 +1,7 @@
 package gazir;
 
+import index.GazBiword;
+import index.GazDictionary;
 import index.GazIndexManager;
 
 import java.util.ArrayList;
@@ -21,5 +23,6 @@ public interface GazIR {
 	GazCollection getCurrentCollection();
 	ArrayList<GazCollection> getCollections();
 	GazIndexManager getIndexManager();
-
+	GazDictionary  getBiword();
+	void setBiword(GazDictionary  biword);
 }

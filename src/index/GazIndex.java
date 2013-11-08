@@ -6,6 +6,6 @@ import doc.GazDocument;
 
 public interface GazIndex {
 	Collection<GazTerm> getDictionaryTerms();
-	void indexDocument( GazDocument document);
+	void indexDocument( GazDocument document, GazDictionary biword);
 	GazTerm getTerm(String token);
 }
