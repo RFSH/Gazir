@@ -48,6 +48,13 @@ public class UIActions {
 		}
 	}
 	
+	public static void showStopWords(GazIR gazir, UICommandOptions options){
+		Collection<String> stopwords = ZTokenProcessor.getStopWords();
+		for(String stopword : stopwords){
+			System.out.println(stopword);
+		}
+	}
+	
 	public static void useCollection(GazIR gazir, UICommandOptions options){
 		int collectionId = Integer.parseInt(options.get("collection"));
 		try{
@@ -108,6 +115,22 @@ public class UIActions {
 				System.out.print("\rLoading documents in directory " + file.getPath() + "\t[" + count+"/"+files.length+"]");				
 			}
 			System.out.println();
+		}
+	}
+	
+	public static void loadStopWords(GazIR gazir, UICommandOptions options){
+		String fileName = options.get("fileName");
+		File file = new File(fileName);
+		
+		if(!file.exists()){
+			System.out.println("No such file or directory");
+			return;
+		}
+		
+		if(file.isFile())
+			ZTokenProcessor.loadStopWords(file);
+		else{
+			System.out.println(fileName + " is not a file	");
 		}
 	}
 	

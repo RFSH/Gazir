@@ -38,7 +38,7 @@ public class ZTokenizer implements GazTokenizer {
 				return "";
 			tokenizer = new StringTokenizer(nextLine);
 		}
-		return tokenizer.nextToken();
+		return tokenizer.nextToken().toLowerCase();
 	}
 	
 	public String next(){

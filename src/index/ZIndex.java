@@ -40,6 +40,10 @@ public class ZIndex implements GazIndex {
 				}
 			}else{
 				pToken = processor.processToken(token);
+				if(pToken == null){
+					System.out.println("Stopword found " + token);
+					continue;
+				}
 				term = dictionary.findTerm(pToken);
 				if(term == null){
 					term = new GazTerm(pToken);

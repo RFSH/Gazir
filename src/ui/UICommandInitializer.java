@@ -61,6 +61,14 @@ public class UICommandInitializer {
 		});
 		showCommand.branch(showPosting);
 		
+		showCommand.branch(new UICommand("stopwords"){
+			@Override
+			public void apply(UICommandOptions options){
+				UIActions.showStopWords(gazir, options);
+			}
+		});
+		showCommand.branch(showPosting);
+		
 		return showCommand;
 	}
 	
@@ -156,6 +164,32 @@ public class UICommandInitializer {
 			@Override
 			public void apply(UICommandOptions options) {
 				UIActions.loadDocuments(gazir, options);
+			}
+		});
+		
+		UICommand stopwordLoad = new UICommand("stopwords");
+		loadCommand.branch(stopwordLoad);
+		
+		stopwordLoad.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<stopword file name>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("fileName", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.loadStopWords(gazir, options);
 			}
 		});
 		return loadCommand;
