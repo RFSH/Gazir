@@ -240,8 +240,7 @@ public class UICommandInitializer {
 	
 	public static UICommand makeQueryCommand(){
 		UICommand queryCommand = new UICommand("query");
-		queryCommand.branch(new UICommand(){
-			
+		UICommand queryText = new UICommand(){
 			@Override
 			public boolean validateCommand(String command) {
 				return command.length() > 0;
@@ -261,8 +260,66 @@ public class UICommandInitializer {
 			public void apply(UICommandOptions options) {
 				UIActions.query(gazir, options);
 			}
-		});
+		};
+		queryCommand.branch(queryText);
 		
+		UICommand queryType = new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				try{
+					Integer.parseInt(command);
+					return true;
+				}catch(Exception e){
+					return false;
+				}
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<query method>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("type", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.query(gazir, options);
+			}
+		};
+		queryText.branch(queryType);
+		
+		UICommand queryMax = new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				try{
+					Integer.parseInt(command);
+					return true;
+				}catch(Exception e){
+					return false;
+				}
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<max results>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("max", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.query(gazir, options);
+			}
+		};
+		queryType.branch(queryMax);
 		
 		return queryCommand;
 	}

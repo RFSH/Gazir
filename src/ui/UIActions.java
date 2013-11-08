@@ -216,8 +216,14 @@ public class UIActions {
 	
 	public static void query(GazIR gazir, UICommandOptions options){
 		String queryString = options.get("query");
-		System.out.println("Querying " + queryString);
-		Collection<GazDocument> results = gazir.query(queryString, 3);
+		int method = 0;
+		int max = -1;
+//		System.out.println("Querying " + queryString);
+		if(options.get("type") != null)
+			method = Integer.parseInt(options.get("type"));
+		if(options.get("max") != null)
+			max = Integer.parseInt("max");
+		Collection<GazDocument> results = gazir.query(queryString, method, max);
 		for(GazDocument doc : results){
 			System.out.print(doc + " ");
 		}
