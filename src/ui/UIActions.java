@@ -215,7 +215,7 @@ public class UIActions {
 	public static void query(GazIR gazir, UICommandOptions options){
 		String queryString = options.get("query");
 		System.out.println("Querying " + queryString);
-		Collection<GazDocument> results = gazir.query(queryString, 3);
+		Collection<GazDocument> results = gazir.query(queryString, 2);
 		for(GazDocument doc : results){
 			System.out.print(doc + " ");
 		}

@@ -24,8 +24,8 @@ public class GazTerm {
 		return token;
 	}
 	
-	public int getFrequency(){
-		return frequency;
+	public int getDocFrequency(){
+		return postingList.size();
 	}
 	
 	public void increment(){

@@ -113,18 +113,29 @@ public class ZGazIR implements GazIR {
 			int ind = termId.get(token);
 			queryTerms[ind] = term;
 			if(term != null){
-				int df = term.getFrequency();
-				queryVector[ind] = Math.log10((double)currenCollection.getDocuments().size()/df) * (1 + Math.log10(queryVector[ind]));
+				int df = term.getDocFrequency();
+				System.out.println("token: "+token+"i: "+termId.get(token));
+				System.out.println("N: "+currenCollection.getDocuments().size()+" DF:"+df+" TF:"+queryVector[ind]);
+				queryVector[ind] = (Math.log10((double)currenCollection.getDocuments().size()/df)) * (1 + Math.log10(queryVector[ind]));
+				System.out.println("w-idf: "+Math.log10((double)currenCollection.getDocuments().size()/df));
+				System.out.println("W: "+queryVector[ind]);
+				System.out.println("--------");
 			}else{
+				
+				System.out.println("term is null");
 				queryVector[ind] = 0;
 			}
 		}
 		
 		if(superAdvanced){
 			double vecSize = 0;
-			for(int i = 0; i < queryVector.length; i++)
+			for(int i = 0; i < queryVector.length; i++){
+//				System.out.println("queryVector[i] :"+ queryVector[i]);
 				vecSize += queryVector[i] * queryVector[i];
+			}
+//			System.out.println("vecSize for query before sqrtl: "+vecSize);
 			vecSize = Math.sqrt(vecSize);
+//			System.out.println("vecSize for query: "+vecSize);
 			for(int i = 0; i < queryVector.length; i++)
 				queryVector[i] /= vecSize;
 		}
@@ -167,19 +178,25 @@ public class ZGazIR implements GazIR {
 				vecSize = Math.sqrt(vecSize);
 				for(int i = 0; i < docVec.length; i++)
 					docVec[i] /= vecSize;
+//				System.out.println("vecSize: "+vecSize);
 			}
 			
 			// Compute score
+			System.out.println("DOC :"+document);
 			double score = 0;
-			for(int i = 0; i < docVec.length; i++){
+			for(int i = 0; i < docVec.length; i++){				
+//				System.out.println("docVec["+i+"]= "+docVec[i]+"\t queryVector["+i+"]= "+queryVector[i]);
 				score += docVec[i] * queryVector[i];
+				
 			}
-			
+			System.out.println("------");
+//			System.out.println("GazDocScore :"+score);
 			docScoreSet.add(new GazDocScore(document, score));
 		}
 		
 		ArrayList<GazDocument> sortedDocs = new ArrayList<GazDocument>();
 		for(GazDocScore docScore : docScoreSet){
+			System.out.println("Score for doc"+docScore.getDocument().getId()+" :"+docScore.getScore());
 			sortedDocs.add(docScore.getDocument());
 			if(maxResults != -1 && sortedDocs.size() >= maxResults)
 				break;

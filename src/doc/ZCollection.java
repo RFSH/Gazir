@@ -34,6 +34,8 @@ public class ZCollection implements GazCollection{
 	
 	@Override
 	public void addDocument(GazDocument document) {
+		if(document.getFile().getName().equals(".DS_Store"))
+			return;
 		documents.add(document);
 		documentMap.put(document.getName(), document);
 		idMap.put(document.getId(), document);
