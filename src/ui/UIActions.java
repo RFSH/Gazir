@@ -1,6 +1,8 @@
 package ui;
 
 import gazir.GazIR;
+import index.GazBiword;
+import index.GazDictionary;
 import index.GazIndex;
 import index.GazPosting;
 import index.GazTerm;
@@ -43,6 +45,13 @@ public class UIActions {
 		}
 		for(GazDocument document : currentCollection.getDocuments()){
 			System.out.println(document.getFile().getName() + ": " + document.getFile().getTotalSpace());
+		}
+	}
+	
+	public static void showStopWords(GazIR gazir, UICommandOptions options){
+		Collection<String> stopwords = ZTokenProcessor.getStopWords();
+		for(String stopword : stopwords){
+			System.out.println(stopword);
 		}
 	}
 	
@@ -109,6 +118,22 @@ public class UIActions {
 		}
 	}
 	
+	public static void loadStopWords(GazIR gazir, UICommandOptions options){
+		String fileName = options.get("fileName");
+		File file = new File(fileName);
+		
+		if(!file.exists()){
+			System.out.println("No such file or directory");
+			return;
+		}
+		
+		if(file.isFile())
+			ZTokenProcessor.loadStopWords(file);
+		else{
+			System.out.println(fileName + " is not a file	");
+		}
+	}
+	
 	public static void indexDocument(GazIR gazir, UICommandOptions options){
 		String document = options.get("document");
 		GazCollection collection = gazir.getCurrentCollection();
@@ -138,7 +163,7 @@ public class UIActions {
 				}
 			}
 			System.out.println("Indexing document " + doc.getName());
-			index.indexDocument(doc);
+			index.indexDocument(doc, gazir.getBiword());
 		}else{
 			List<GazDocument> documents = collection.getDocuments();
 			int count = 0;
@@ -146,7 +171,7 @@ public class UIActions {
 				count++;
 				
 				System.out.print(String.format("\rIndexing   %-30s [%d/%d]", doc.getName(), count, documents.size()));
-				index.indexDocument(doc);
+				index.indexDocument(doc, gazir.getBiword());
 			}
 			System.out.println();
 		}
@@ -214,8 +239,14 @@ public class UIActions {
 	
 	public static void query(GazIR gazir, UICommandOptions options){
 		String queryString = options.get("query");
-		System.out.println("Querying " + queryString);
-		Collection<GazDocument> results = gazir.query(queryString, 2);
+		int method = 0;
+		int max = -1;
+//		System.out.println("Querying " + queryString);
+		if(options.get("type") != null)
+			method = Integer.parseInt(options.get("type"));
+		if(options.get("max") != null)
+			max = Integer.parseInt("max");
+		Collection<GazDocument> results = gazir.query(queryString, method, max);
 		for(GazDocument doc : results){
 			System.out.print(doc + " ");
 		}
@@ -252,5 +283,29 @@ public class UIActions {
 		GazEvaluator evaluator = new GazEvaluator(tests, gazir);
 		System.out.println("Running " + tests.size() + " test queries...");
 		evaluator.evaluate();
+	}
+	
+	public static void biwordInit(GazIR gazir, UICommandOptions options){
+		if(gazir.getCurrentCollection() == null){
+			System.out.println("No collection selected");
+			return;
+		}
+		
+		GazBiword biword = new GazBiword();
+		GazDictionary biwordDic = biword.initialize(gazir.getCurrentCollection());
+		gazir.setBiword(biwordDic);
+	}
+	
+	public static void biwordList(GazIR gazir, UICommandOptions options){
+		if(gazir.getBiword() == null){
+			System.out.println("Biword not initalized");
+			return;
+		}
+		
+		GazDictionary biword = gazir.getBiword();
+		Collection<GazTerm> terms = biword.getTerms();
+		for(GazTerm term: terms){
+			System.out.println(String.format("%-15s: %d",term.getToken(), term.getFrequency()));
+		}
 	}
 }

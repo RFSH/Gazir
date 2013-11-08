@@ -1,5 +1,7 @@
 package doc;
 
+import index.GazDictionary;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Scanner;
@@ -9,9 +11,16 @@ public class ZTokenizer implements GazTokenizer {
 	private GazDocument document;
 	String nextLine;
 	StringTokenizer tokenizer;
+	GazDictionary biword;
+	String tempTok;
 	
 	public ZTokenizer(GazDocument document){
+		this(document, null);
+	}
+	
+	public ZTokenizer(GazDocument document, GazDictionary biword){
 		this.setDocument(document);
+		this.biword = biword;
 	}
 	
 	public GazDocument getDocument() {
@@ -22,14 +31,30 @@ public class ZTokenizer implements GazTokenizer {
 		return nextLine != null;
 	}
 	
-	public String next() {
+	public String next_() {
 		if(!tokenizer.hasMoreTokens()){
 			nextLine = document.readLine();
 			if(!hasNext())
 				return "";
 			tokenizer = new StringTokenizer(nextLine);
 		}
-		return tokenizer.nextToken();
+		return tokenizer.nextToken().toLowerCase();
+	}
+	
+	public String next(){
+		if(biword == null)
+			return next_();
+		
+		if(tempTok == null){
+			tempTok = next_();
+			return tempTok;
+		}
+		String s = next_();
+		String b = tempTok + " " + s;
+		tempTok = s;
+		if(biword.findTerm(b) != null)
+			return b;
+		return s;
 	}
 	
 	public void setDocument(GazDocument document){

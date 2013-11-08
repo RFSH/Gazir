@@ -61,6 +61,14 @@ public class UICommandInitializer {
 		});
 		showCommand.branch(showPosting);
 		
+		showCommand.branch(new UICommand("stopwords"){
+			@Override
+			public void apply(UICommandOptions options){
+				UIActions.showStopWords(gazir, options);
+			}
+		});
+		showCommand.branch(showPosting);
+		
 		return showCommand;
 	}
 	
@@ -158,6 +166,32 @@ public class UICommandInitializer {
 				UIActions.loadDocuments(gazir, options);
 			}
 		});
+		
+		UICommand stopwordLoad = new UICommand("stopwords");
+		loadCommand.branch(stopwordLoad);
+		
+		stopwordLoad.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<stopword file name>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("fileName", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.loadStopWords(gazir, options);
+			}
+		});
 		return loadCommand;
 	}
 	
@@ -240,8 +274,7 @@ public class UICommandInitializer {
 	
 	public static UICommand makeQueryCommand(){
 		UICommand queryCommand = new UICommand("query");
-		queryCommand.branch(new UICommand(){
-			
+		UICommand queryText = new UICommand(){
 			@Override
 			public boolean validateCommand(String command) {
 				return command.length() > 0;
@@ -261,8 +294,66 @@ public class UICommandInitializer {
 			public void apply(UICommandOptions options) {
 				UIActions.query(gazir, options);
 			}
-		});
+		};
+		queryCommand.branch(queryText);
 		
+		UICommand queryType = new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				try{
+					Integer.parseInt(command);
+					return true;
+				}catch(Exception e){
+					return false;
+				}
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<query method>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("type", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.query(gazir, options);
+			}
+		};
+		queryText.branch(queryType);
+		
+		UICommand queryMax = new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				try{
+					Integer.parseInt(command);
+					return true;
+				}catch(Exception e){
+					return false;
+				}
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<max results>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("max", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.query(gazir, options);
+			}
+		};
+		queryType.branch(queryMax);
 		
 		return queryCommand;
 	}
@@ -312,7 +403,23 @@ public class UICommandInitializer {
 		return evalCommand;
 	}
 	
-
+	public static UICommand makeBiwordCommand(){
+		UICommand biwordCommand = new UICommand("biword");
+		biwordCommand.branch(new UICommand("init"){
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.biwordInit(gazir, options);
+			}
+		});
+		biwordCommand.branch(new UICommand("list"){
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.biwordList(gazir, options);
+			}
+		});
+		return biwordCommand;
+	}
+	
 	public static UICommand initializeCommands(GazIR gaz){
 		gazir = gaz;
 		UICommand root = new UICommand("root") {
@@ -335,6 +442,7 @@ public class UICommandInitializer {
 		root.branch(makeIndexCommand());
 		root.branch(makeQueryCommand());
 		root.branch(makeEvalCommand());
+		root.branch(makeBiwordCommand());
 		return root;
 	}
 }// load documents /home/hadi/Uni/MIR/project/test/Hadi
