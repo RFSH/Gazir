@@ -9,10 +9,8 @@ import doc.GazCollection;
 import doc.GazDocument;
 
 public interface GazIR {
-//	void initialize();
 	
 	void addCollection(GazCollection collection);
-	void addDocument(GazDocument document);
 	void switchCollection(GazCollection collection);
 	
 	
