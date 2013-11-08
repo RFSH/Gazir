@@ -32,4 +32,9 @@ public class GazIndexedDocument {
 	public int hashCode() {
 		return document.hashCode();
 	}
+	
+	@Override
+	public String toString() {
+		return document.toString();
+	}
 }

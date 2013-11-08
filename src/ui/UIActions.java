@@ -1,10 +1,17 @@
 package ui;
 
 import gazir.GazIR;
+import index.GazIndex;
+import index.GazPosting;
+import index.GazTerm;
+import index.GazTokenProcessor;
+import index.ZIndex;
+import index.ZTokenProcessor;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import doc.GazCollection;
 import doc.GazDocument;
@@ -102,23 +109,103 @@ public class UIActions {
 	public static void indexDocument(GazIR gazir, UICommandOptions options){
 		String document = options.get("document");
 		GazCollection collection = gazir.getCurrentCollection();
+		GazIndex index = gazir.getIndexManager().getCurrentIndex();
+		
+		if(index == null){
+			System.out.println("No index selected, creating new index...");
+			index = new ZIndex();
+			gazir.getIndexManager().addIndex(index);
+			gazir.getIndexManager().switchIndex(index);
+		}
+		
 		if(collection == null){
 			System.out.println("No collection selected");
 			return;
 		}
+		
 		if(document != null){
-			try{
-				GazDocument doc = collection.getDocumentByName(document);
-				if(doc == null){
-					try{
-						int docId = Integer.parseInt(document);
-					}catch(Exception e){
-						
-					}
+			GazDocument doc = collection.getDocumentByName(document);
+			if(doc == null){
+				try{
+					int docId = Integer.parseInt(document);
+					doc = collection.getDocuments().get(docId);
+				}catch(Exception e){
+					System.out.println("Invalid document");
+					return;
 				}
-				
 			}
-			
+			System.out.println("Indexing document " + doc.getName());
+			index.indexDocument(doc);
+		}else{
+			List<GazDocument> documents = collection.getDocuments();
+			int count = 0;
+			for(GazDocument doc : documents){
+				count++;
+				
+				System.out.print(String.format("\rIndexing   %-30s [%d/%d]", doc.getName(), count, documents.size()));
+				index.indexDocument(doc);
+			}
+			System.out.println();
 		}
+	}
+	
+	public static void showIndex(GazIR gazir, UICommandOptions options){
+		List<GazIndex> indices = gazir.getIndexManager().getIndexes();
+		int count = 1;
+		for(GazIndex index : indices){
+			if(index.equals(gazir.getIndexManager().getCurrentIndex()))
+				System.out.print("* ");
+			else
+				System.out.print("  ");
+			System.out.println(count + ": " + index.getDictionaryTerms().size() + " terms");
+			count++;
+		}
+	}
+	
+	public static void showDictionary(GazIR gazir, UICommandOptions options){
+		GazIndex index = gazir.getIndexManager().getCurrentIndex();
+		
+		if(index == null){
+			System.out.println("No index selected");
+			return;
+		}
+		
+		Collection<GazTerm> terms = index.getDictionaryTerms();
+		for(GazTerm term : terms){
+			System.out.println(term);
+		}
+	}
+	
+	public static void showPosting(GazIR gazir, UICommandOptions options){
+		GazIndex index = gazir.getIndexManager().getCurrentIndex();
+		String token = options.get("term");
+		if(index == null){
+			System.out.println("No index selected");
+			return;
+		}
+		
+		GazTokenProcessor processor = new ZTokenProcessor();
+		String pToken = processor.processToken(token);
+		if(pToken == null){
+			System.out.println("Token " + token + " not accepted");
+			return;
+		}
+		if(!token.equals(pToken))
+			System.out.println("Token changed to " + pToken);
+		
+		GazTerm term = index.getTerm(token);
+		if(term == null){
+			System.out.println(pToken + " not found in dictionary");
+			return;
+		}
+		
+		List<GazPosting> postings = term.getPostingList();
+		System.out.print(pToken + ": " + postings.size() + " --  ");
+		for(int i = 0; i < postings.size(); i++){
+			if(i != 0)
+				System.out.print(", ");
+			System.out.print(postings.get(i).getDocument() + " [" + postings.get(i).getTermFrequency() + "]");
+		}
+		
 	}
 }

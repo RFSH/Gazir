@@ -1,10 +1,10 @@
 package index;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.List;
 
 public interface GazIndexManager {
-	Collection<GazIndex> getIndexes();
+	List<GazIndex> getIndexes();
 	void addIndex(GazIndex index);
 	void saveIndex(GazIndex index, File file);
 	GazIndex loadIndex(File file);

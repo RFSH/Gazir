@@ -1,7 +1,7 @@
 package index;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 public class GazTerm {
 	private String token;
@@ -32,7 +32,7 @@ public class GazTerm {
 		frequency++;
 	}
 	
-	public Collection<GazPosting> getPostingList(){
+	public List<GazPosting> getPostingList(){
 		return postingList;
 	}
 	
@@ -44,5 +44,10 @@ public class GazTerm {
 	
 	public void pushPosting(GazPosting posting){
 		postingList.add(posting);
+	}
+	
+	@Override
+	public String toString() {
+		return token;
 	}
 }

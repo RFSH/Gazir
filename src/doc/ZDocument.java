@@ -53,7 +53,7 @@ public class ZDocument implements GazDocument{
 	}
 	
 	public String readLine(){
-		if(fileOpen && !openFile()){
+		if(!fileOpen && !openFile()){
 			return "";
 		}
 		
@@ -113,5 +113,10 @@ public class ZDocument implements GazDocument{
 	@Override
 	public int hashCode() {
 		return file.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return file.getName();
 	}
 }

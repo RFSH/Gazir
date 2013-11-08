@@ -22,6 +22,45 @@ public class UICommandInitializer {
 			}
 		});
 		
+		showCommand.branch(new UICommand("index"){
+			@Override
+			public void apply(UICommandOptions options){
+				UIActions.showIndex(gazir, options);
+			}
+		});
+		
+		showCommand.branch(new UICommand("dictionary"){
+			@Override
+			public void apply(UICommandOptions options){
+				UIActions.showDictionary(gazir, options);
+			}
+		});
+		
+		UICommand showPosting = new UICommand("posting");
+		showPosting.branch(new UICommand("posting"){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<token>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("term", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options){
+				UIActions.showPosting(gazir, options);
+			}
+		});
+		showCommand.branch(showPosting);
+		
 		return showCommand;
 	}
 	
@@ -218,6 +257,7 @@ public class UICommandInitializer {
 		root.branch(makeUseCommand());
 		root.branch(makeLoadCommand());
 		root.branch(makeNewCommand());
+		root.branch(makeIndexCommand());
 		return root;
 	}
 }

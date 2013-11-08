@@ -2,10 +2,13 @@ package doc;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class ZTokenizer implements GazTokenizer {
 	private GazDocument document;
 	String nextLine;
+	StringTokenizer tokenizer;
 	
 	public ZTokenizer(GazDocument document){
 		this.setDocument(document);
@@ -20,15 +23,20 @@ public class ZTokenizer implements GazTokenizer {
 	}
 	
 	public String next() {
-		String ret = nextLine;
-		nextLine = document.readLine();
-		return ret;
+		if(!tokenizer.hasMoreTokens()){
+			nextLine = document.readLine();
+			if(!hasNext())
+				return "";
+			tokenizer = new StringTokenizer(nextLine);
+		}
+		return tokenizer.nextToken();
 	}
 	
 	public void setDocument(GazDocument document){
 		this.document = document;
 		document.reset();
 		nextLine = document.readLine();
+		tokenizer = new StringTokenizer(nextLine);
 	}
 
 	

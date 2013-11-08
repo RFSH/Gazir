@@ -2,6 +2,7 @@ package ui;
 
 import gazir.GazIR;
 import gazir.ZGazIR;
+import index.ZIndexManager;
 
 import java.util.Scanner;
 
@@ -13,7 +14,7 @@ public class Main {
 	
 	
 	public static void main(String[] args){
-		gazir = new ZGazIR(null, null);
+		gazir = new ZGazIR(null, new ZIndexManager());
 		rootCommand = UICommandInitializer.initializeCommands(gazir);
 		Scanner scanner = new Scanner(System.in);
 		while(true){

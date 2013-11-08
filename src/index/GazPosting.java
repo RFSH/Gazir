@@ -29,4 +29,13 @@ public class GazPosting {
 	public void setTermFrequency(int termFrequency) {
 		this.termFrequency = termFrequency;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof GazPosting){
+			GazPosting pos = (GazPosting)obj;
+			return pos.document.equals(document);
+		}
+		return super.equals(obj);
+	}
 }

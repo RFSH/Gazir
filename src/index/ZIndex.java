@@ -33,8 +33,10 @@ public class ZIndex implements GazIndex {
 			String pToken = processor.processToken(token);
 			
 			GazTerm term = dictionary.findTerm(pToken);
-			if(term == null)
+			if(term == null){
 				term = new GazTerm(pToken);
+				dictionary.addTerm(pToken, term);
+			}
 			
 			// Add to end posting
 			GazPosting posting = term.getLastPosting();
