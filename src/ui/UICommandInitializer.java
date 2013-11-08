@@ -403,6 +403,31 @@ public class UICommandInitializer {
 		return evalCommand;
 	}
 	
+	public static UICommand makeTokenizeCommand(){
+		UICommand tokCommand = new UICommand("tokenize");
+		tokCommand.branch(new UICommand(){
+			@Override
+			public boolean validateCommand(String command) {
+				return command.length() > 0;
+			}
+			@Override
+			public String acceptedCommand() {
+				return "<document>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("document", command);
+			}
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.tokenize(gazir, options);
+			}
+		});
+		return tokCommand;
+	}
+	
 	public static UICommand makeBiwordCommand(){
 		UICommand biwordCommand = new UICommand("biword");
 		biwordCommand.branch(new UICommand("init"){
@@ -439,6 +464,7 @@ public class UICommandInitializer {
 		root.branch(makeUseCommand());
 		root.branch(makeLoadCommand());
 		root.branch(makeNewCommand());
+		root.branch(makeTokenizeCommand());
 		root.branch(makeIndexCommand());
 		root.branch(makeQueryCommand());
 		root.branch(makeEvalCommand());

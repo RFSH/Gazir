@@ -18,13 +18,40 @@ import java.util.List;
 import doc.GazCollection;
 import doc.GazDocument;
 import doc.GazDocumentNotFoundException;
+import doc.GazTokenizer;
 import doc.ZCollection;
 import doc.ZDocument;
+import doc.ZTokenizer;
 import eval.GazEvaluator;
 import eval.GazTestLoader;
 import eval.GazTestQuery;
 
 public class UIActions {
+	public static void tokenize(GazIR gazir, UICommandOptions options){
+		String docS = options.get("document");
+		GazCollection col = gazir.getCurrentCollection();
+		if(col == null){
+			System.out.println("No collection selected");
+			return;
+		}
+		
+		GazDocument doc;
+		try{
+			doc = col.getDocumentById(Integer.parseInt(docS));
+		}catch(Exception e){
+			doc = col.getDocumentByName(docS);
+		}
+		
+		if(doc == null){
+			System.out.println("No such document in collectoin");
+			return;
+		}
+		
+		GazTokenizer tok = new ZTokenizer(doc);
+		while(tok.hasNext()){
+			System.out.println(tok.next());
+		}
+	}
 	
 	public static void showCollections(GazIR gazir, UICommandOptions options){
 		ArrayList<GazCollection> collections = gazir.getCollections();
@@ -44,7 +71,7 @@ public class UIActions {
 			return;
 		}
 		for(GazDocument document : currentCollection.getDocuments()){
-			System.out.println(document.getFile().getName() + ": " + document.getFile().getTotalSpace());
+			System.out.println(document.getFile().getName() + ": " + document.getFile().length());
 		}
 	}
 	

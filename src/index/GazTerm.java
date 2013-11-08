@@ -11,7 +11,6 @@ public class GazTerm {
 	public GazTerm(String token, int frequency){
 		this.token = token;
 		this.frequency = frequency;
-		
 		postingList = new ArrayList<GazPosting>();
 	}
 	

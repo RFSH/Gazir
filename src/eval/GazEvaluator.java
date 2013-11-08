@@ -44,7 +44,13 @@ public class GazEvaluator {
 			List<GazDocument> retrieved =  gazir.query(tests.get(i).getQueryText(), method, 20);
 			List<GazDocument> relevant = tests.get(i).getRelevantDocuments();
 			ArrayList<GazDocument> relevantRetrieved = new ArrayList<GazDocument>();
-
+//			System.out.println("_____________________");
+//			System.out.println(tests.get(i).getQueryText());
+//			System.out.println("RETRIEVED");
+//			System.out.println(retrieved);
+//			System.out.println("RELEVANT");
+//			System.out.println(relevant);
+//			
 			for (GazDocument gazDocument : retrieved) {
 				if (relevant.contains(gazDocument)) {
 					relevantRetrieved.add(gazDocument);
@@ -85,6 +91,5 @@ public class GazEvaluator {
 		maps[method] /= tests.size();
 		precissions[method] /= tests.size();
 		recalls[method] /= tests.size();
-
 	}
 }

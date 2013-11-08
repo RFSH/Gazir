@@ -4,6 +4,8 @@ import index.GazDictionary;
 import index.GazIndexManager;
 import index.GazPosting;
 import index.GazTerm;
+import index.GazTokenProcessor;
+import index.ZTokenProcessor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +18,8 @@ import java.util.TreeSet;
 
 import doc.GazCollection;
 import doc.GazDocument;
+import doc.QueryDocument;
+import doc.ZTokenizer;
 
 public class ZGazIR implements GazIR {
 	private GazCollection currenCollection;
@@ -43,20 +47,22 @@ public class ZGazIR implements GazIR {
 		List<GazDocument> documents = new ArrayList<GazDocument>();
 		Collection<GazPosting> temp = null;
 		for (String string : queryTerms) {
-			for (GazTerm term : indexManger.getCurrentIndex()
-					.getDictionaryTerms()) {
-				if (term.getToken().equals(string)) {
-					if (temp == null)
-						temp = term.getPostingList();
-					else
-						temp.retainAll(term.getPostingList());
-				}
-			}
-		}
-		for (GazPosting posting : temp) {
-			documents.add(posting.getDocument().getDocument());
-			if (documents.size() > maxResults)
+			GazTerm term = indexManger.getCurrentIndex().getTerm(string);
+			if(term == null){
+				temp = null;
 				break;
+			}
+			if (temp == null)
+				temp = term.getPostingList();
+			else
+				temp.retainAll(term.getPostingList());
+		}
+		if(temp != null){
+			for (GazPosting posting : temp) {
+				documents.add(posting.getDocument().getDocument());
+				if (documents.size() > maxResults)
+					break;
+			}
 		}
 		return documents;
 	}
@@ -116,10 +122,16 @@ public class ZGazIR implements GazIR {
 			queryTerms[ind] = term;
 			if(term != null){
 				int df = term.getDocFrequency();
+//				System.out.println("-----------------------------------------");
+//				System.out.println(term);
+//				System.out.println("df " + df);
+//				System.out.println("w-idf: "+Math.log10((double)currenCollection.getDocuments().size()/df)+"\t w-tf: "+
+//						(1 + Math.log10(queryVector[ind])));
+//				System.out.println("-----------------------------------------");
 				queryVector[ind] = Math.log10((double)currenCollection.getDocuments().size()/df) * (1 + Math.log10(queryVector[ind]));
 			}else{
 				
-				System.out.println("term is null");
+//				System.out.println("term is null");
 				queryVector[ind] = 0;
 			}
 		}
@@ -159,7 +171,7 @@ public class ZGazIR implements GazIR {
 		Comparator<GazDocScore> gazCompare = new Comparator<GazDocScore>() {
 			@Override
 			public int compare(GazDocScore o1, GazDocScore o2) {
-				return (o1.getScore() >= o2.getScore()) ? 1 : -1 ;
+				return (o1.getScore() <= o2.getScore()) ? 1 : -1 ;
 			}
 		};
 		TreeSet<GazDocScore> docScoreSet = new TreeSet<GazDocScore>(gazCompare);
@@ -179,21 +191,21 @@ public class ZGazIR implements GazIR {
 			}
 			
 			// Compute score
-			System.out.println("DOC :"+document);
+//			System.out.println("DOC :"+document);
 			double score = 0;
 			for(int i = 0; i < docVec.length; i++){				
 //				System.out.println("docVec["+i+"]= "+docVec[i]+"\t queryVector["+i+"]= "+queryVector[i]);
 				score += docVec[i] * queryVector[i];
 				
 			}
-			System.out.println("------");
+//			System.out.println("------");
 //			System.out.println("GazDocScore :"+score);
 			docScoreSet.add(new GazDocScore(document, score));
 		}
 		
 		ArrayList<GazDocument> sortedDocs = new ArrayList<GazDocument>();
 		for(GazDocScore docScore : docScoreSet){
-			System.out.println("Score for doc"+docScore.getDocument().getId()+" :"+docScore.getScore());
+//			System.out.println("Score for doc"+docScore.getDocument().getId()+" :"+docScore.getScore());
 			sortedDocs.add(docScore.getDocument());
 			if(maxResults != -1 && sortedDocs.size() >= maxResults)
 				break;
@@ -201,13 +213,31 @@ public class ZGazIR implements GazIR {
 		
 		return sortedDocs;
 	}
+	
+	private String[] preProcess(String query){
+		ArrayList<String> list = new ArrayList<String>();
+		ZTokenProcessor processor = new ZTokenProcessor();
+//		ZTokenizer tokenizer = new ZTokenizer(, biword);
+		String[] shit = query.split(" ");
+		
+//		while(tokenizer.hasNext()){
+		for(int i = 0; i < shit.length; i++){
+			String token = shit[i];
+			token = token.toLowerCase();
+//			String token = tokenizer.next();
+			token = processor.processToken(token);
+			if(token == null)
+				continue;
+			list.add(token);
+		}
+		return list.toArray(new String[0]);
+	}
+	
 	@Override
 	public List<GazDocument> query(String query, int queryType,
 			int maxResults) {
 	
-		String queryTokens[] = query.split(" ");
-
-		// TODO handle stopwords!
+		String queryTokens[] = preProcess(query);
 
 //		Collection<Collection<GazPosting>> postings = null;
 //		if (queryType == 2 && queryType==1) {

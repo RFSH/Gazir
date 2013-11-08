@@ -51,7 +51,6 @@ public class ZIndex implements GazIndex {
 				}
 			}
 			
-			
 			// Add to end posting
 			GazPosting posting = term.getLastPosting();
 //			System.out.println(pToken + " " + posting);
