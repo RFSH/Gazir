@@ -8,5 +8,6 @@ public interface GazDocument {
 	String readLine();
 	void reset();
 	void close();
-	File getFile();	
+	File getFile();
+	String getName();
 }

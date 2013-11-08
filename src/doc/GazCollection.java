@@ -1,11 +1,12 @@
 package doc;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface GazCollection {
 	int getId();
-	Collection<GazDocument> getDocuments();
+	List<GazDocument> getDocuments();
 	void addDocument(GazDocument document);
+	GazDocument getDocumentByName(String name);
 	int nextDocId();
 	String getName();
 }

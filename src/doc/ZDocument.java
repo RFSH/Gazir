@@ -85,6 +85,11 @@ public class ZDocument implements GazDocument{
 		fileOpen = false;
 		
 	}
+	
+	@Override
+	public String getName() {
+		return file.getName();
+	}
 
 	@Override
 	public File getFile() {

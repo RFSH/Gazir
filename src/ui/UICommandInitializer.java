@@ -2,11 +2,6 @@ package ui;
 
 import gazir.GazIR;
 
-import java.util.ArrayList;
-
-import doc.GazCollection;
-import doc.GazDocument;
-
 public class UICommandInitializer {
 	private static GazIR gazir;
 	
@@ -158,6 +153,51 @@ public class UICommandInitializer {
 		return newCommand;
 	}
 	
+	public static UICommand makeIndexCommand(){
+		UICommand indexCommand = new UICommand("index");
+		indexCommand.branch(new UICommand("all"){
+			@Override
+			public String acceptedCommand() {
+				return "all";
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.indexDocument(gazir, options);
+			}
+		});
+		
+		indexCommand.branch(new UICommand("all"){
+			@Override
+			public boolean validateCommand(String command) {
+				try{
+					Integer.parseInt(command);
+					return true;
+				}catch(Exception e){
+					return false;
+				}
+			}
+			
+			@Override
+			public String acceptedCommand() {
+				return "<document-id>";
+			}
+			
+			@Override
+			public void inCommand(String command, UICommandOptions options) {
+				super.inCommand(command, options);
+				options.set("document", command);
+			}
+			
+			@Override
+			public void apply(UICommandOptions options) {
+				UIActions.indexDocument(gazir, options);
+			}
+		});
+		
+		
+		return indexCommand;
+	}
 	
 	public static UICommand initializeCommands(GazIR gaz){
 		gazir = gaz;
