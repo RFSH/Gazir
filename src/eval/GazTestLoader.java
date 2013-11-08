@@ -35,8 +35,9 @@ public class GazTestLoader {
 				String query = test.readAll();
 				System.out.println(query.length());
 				test.setQueryText(query);
-				tests.put(test.getId(), test);
 				test.close();
+				if(test.getId() != 0)
+					tests.put(test.getId(), test);
 			}
 			System.out.println();
 			
@@ -71,6 +72,10 @@ public class GazTestLoader {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return new ArrayList<GazTestQuery>(tests.values());
+		ArrayList<GazTestQuery> testList = new ArrayList<GazTestQuery>(tests.values());
+		for (int i = 0; i < testList.size(); i++) {
+			System.out.println(testList.get(i).getId()+":  " + testList.get(i).getRelevantDocuments().size());
+		}
+		return testList;
 	}
 }

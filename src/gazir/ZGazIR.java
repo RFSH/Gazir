@@ -28,16 +28,16 @@ public class ZGazIR implements GazIR {
 	}
 	
 	@Override
-	public Collection<GazDocument> query(String query, int queryType) {
+	public List<GazDocument> query(String query, int queryType) {
 		return query(query, queryType, 10);
 	}
 
 	@Override
-	public Collection<GazDocument> query(String query) {
+	public List<GazDocument> query(String query) {
 		return query(query, 0, 10);
 	}
 	
-	public Collection<GazDocument> booleanQuery(String queryTerms[], int maxResults){
+	public List<GazDocument> booleanQuery(String queryTerms[], int maxResults){
 		List<GazDocument> documents = new ArrayList<GazDocument>();
 		Collection<GazPosting> temp = null;
 		for (String string : queryTerms) {
@@ -59,7 +59,7 @@ public class ZGazIR implements GazIR {
 		return documents;
 	}
 
-	public Collection<GazDocument> rankDocs(String queryTerms[], int maxResults, boolean tfBased){
+	public List<GazDocument> rankDocs(String queryTerms[], int maxResults, boolean tfBased){
 		Collection<Collection<GazPosting>> postings = findPostings(queryTerms);
 		
 		GazComparator gazCompare = new GazComparator();
@@ -94,11 +94,11 @@ public class ZGazIR implements GazIR {
 			return results.subList(0, maxResults);
 	}
 	
-	public Collection<GazDocument> rankDocAdvanced(String[] queryTokens, int maxResults, boolean superAdvanced){
+	public List<GazDocument> rankDocAdvanced(String[] queryTokens, int maxResults, boolean superAdvanced){
 		HashMap<String, Integer> termId = new HashMap<String, Integer>();
 		for(int i = 0; i < queryTokens.length; i++){
 			if(termId.get(queryTokens[i]) == null)
-				termId.put(queryTokens[i], i);
+				termId.put(queryTokens[i], termId.keySet().size());
 		}
 		
 		int queryCount = termId.keySet().size();
@@ -112,8 +112,12 @@ public class ZGazIR implements GazIR {
 			GazTerm term = indexManger.getCurrentIndex().getTerm(token);
 			int ind = termId.get(token);
 			queryTerms[ind] = term;
-			int df = term.getFrequency();
-			queryVector[ind] = Math.log10((double)currenCollection.getDocuments().size()/df) * (1 + Math.log10(queryVector[ind]));
+			if(term != null){
+				int df = term.getFrequency();
+				queryVector[ind] = Math.log10((double)currenCollection.getDocuments().size()/df) * (1 + Math.log10(queryVector[ind]));
+			}else{
+				queryVector[ind] = 0;
+			}
 		}
 		
 		if(superAdvanced){
@@ -128,6 +132,8 @@ public class ZGazIR implements GazIR {
 		Map<Integer, Double[]> docVecMap = new HashMap<Integer, Double[]>();
 		Map<Integer, GazDocument> docMap = new HashMap<Integer, GazDocument>();
 		for (GazTerm term : queryTerms) {
+			if(term == null)
+				continue;
 			for(GazPosting posting : term.getPostingList()){
 				int docId = posting.getDocId();
 				Double[] vec = docVecMap.get(docId);
@@ -182,7 +188,7 @@ public class ZGazIR implements GazIR {
 		return sortedDocs;
 	}
 	@Override
-	public Collection<GazDocument> query(String query, int queryType,
+	public List<GazDocument> query(String query, int queryType,
 			int maxResults) {
 	
 		String queryTokens[] = query.split(" ");

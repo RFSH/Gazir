@@ -3,7 +3,7 @@ package gazir;
 import index.GazIndexManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import doc.GazCollection;
 import doc.GazDocument;
@@ -14,9 +14,9 @@ public interface GazIR {
 	void switchCollection(GazCollection collection);
 	
 	
-	Collection<GazDocument> query(String query, int queryType, int maxResults);
-	Collection<GazDocument> query(String query, int queryType);
-	Collection<GazDocument> query(String query);
+	List<GazDocument> query(String query, int queryType, int maxResults);
+	List<GazDocument> query(String query, int queryType);
+	List<GazDocument> query(String query);
 	
 	GazCollection getCurrentCollection();
 	ArrayList<GazCollection> getCollections();

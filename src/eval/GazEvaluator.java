@@ -31,19 +31,17 @@ public class GazEvaluator {
 	private void print() {
 		for (int i = 0; i < 5; i++) {
 			if (i == 0)
-				System.out.println("Model " + i + ": R=" + recalls[i] + " P="
-						+ precissions[i]);
+				System.out.println(String.format("Model %d: R = %.3f   P = %.3f", i, recalls[i], precissions[i]));
 			else
-				System.out.println("Model " + i + ": R=" + recalls[i] + " P="
-						+ precissions[i] + " MAP=" + maps[i]);
+				System.out.println(String.format("Model %d: R = %.3f   P = %.3f  MAP = %.3f", i, recalls[i], precissions[i], maps[i]));
 		}
 	}
 
 	private void evaluateAll(int method) {
 		// int p = 0, r = 0;
 		for (int i = 0; i < tests.size(); i++) {
-			ArrayList<GazDocument> retrieved = (ArrayList<GazDocument>) gazir
-					.query(tests.get(i).getQueryText(), method, 20);
+			System.out.print(String.format("\rEvaulating method %d \t[%d/%d]", method, i+1, tests.size()));
+			List<GazDocument> retrieved =  gazir.query(tests.get(i).getQueryText(), method, 20);
 			List<GazDocument> relevant = tests.get(i).getRelevantDocuments();
 			ArrayList<GazDocument> relevantRetrieved = new ArrayList<GazDocument>();
 
@@ -52,9 +50,15 @@ public class GazEvaluator {
 					relevantRetrieved.add(gazDocument);
 				}
 			}
-			precissions[method] += relevantRetrieved.size() / retrieved.size();
-			recalls[method] += relevantRetrieved.size() / relevant.size();
+			if(retrieved.size() != 0)
+				precissions[method] += (double)relevantRetrieved.size() / retrieved.size();
+			else
+				precissions[method] += 1;
 			
+			if(relevant.size() != 0)				
+				recalls[method] += (double)relevantRetrieved.size() / relevant.size();
+			else
+				recalls[method] += 1; 
 			
 			if(method!=0){
 				int pre=0;
@@ -67,13 +71,17 @@ public class GazEvaluator {
 						if(gazDocument.equals(retrieved.get(j)))
 							break; 
 					}
-					pre += retRel / j;
+					if(j!=0)
+						pre += (double)retRel / j;
+					else
+						pre += 1;
 				}
-				maps[method]+= pre / relevant.size();
+				if(relevant.size()!=0)
+					maps[method]+= (double)pre / relevant.size();
 			}
 		
 		}
-
+		System.out.println();
 		maps[method] /= tests.size();
 		precissions[method] /= tests.size();
 		recalls[method] /= tests.size();

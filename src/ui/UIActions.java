@@ -249,7 +249,7 @@ public class UIActions {
 		
 		List<GazTestQuery> tests = loader.loadTests();
 		
-		GazEvaluator evaluator = new GazEvaluator(tests);
+		GazEvaluator evaluator = new GazEvaluator(tests, gazir);
 		System.out.println("Running " + tests.size() + " test queries...");
 		evaluator.evaluate();
 	}
