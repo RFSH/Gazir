@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>Gazir | Home</title>
+
+	<link rel="stylesheet" type="text/css" href="static/css/semantic.css">
+	<link rel="stylesheet" type="text/css" href="static/css/style.css">
+
+	<link href='http://fonts.googleapis.com/css?family=Alegreya+Sans|Chango' rel='stylesheet' type='text/css'>
+	   
+	<script type="text/javascript" src="static/js/jquery.js"></script>
+	<script type="text/javascript" src="static/js/davis.js"></script>
+	<script type="text/javascript" src="static/js/semantic.js"></script>
+	<script type="text/javascript" src="static/js/script.js"></script>
+	<script type="text/javascript">
+		var app = Davis(function(){
+		// alert("fucker");
+		this.get('/parts/:name', function(req){
+			// alert(req.params['name']);
+			$('.main-content').hide();
+			// if(req.params['name'] == 'crawler'){
+				var p = req.params['name'];
+				alert(p)
+				$('.main-content.'+p).show();
+
+		})
+	});
+
+	app.start()
+	</script>
+</head>
+<body>
+	<div class="page-cont">
+		<div class="body">
+			<div class="main-header">
+				<div class="center">
+					<div class="gaz-logo">
+						<a href=""><h1>GAZir<small>gaz Information Retrieval </small></h1></a>
+					</div>
+
+					<div class="main-menu">
+						<a class="menu-item" href="/parts/crawler">
+							Crawler
+						</a>
+						<a class="menu-item" href="/parts/indexer">
+							Indexer
+						</a>
+						<a class="menu-item" href="/parts/retriever">
+							Retriever
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="content">
+				<div class="center">
+					<div class="main-content home">
+						<div class="home-item">
+							<div class="image">
+								<i class="icon bug"></i>
+							</div>
+							<div class="title">
+								<h2>Crawl</h2>
+							</div>
+							<div class="content">
+								crawl an stuff
+							</div>
+						</div>
+						<div class="home-item">
+							<div class="image">
+								<i class="icon copy"></i>
+							</div>
+							<div class="title">
+								<h2>Index</h2>
+							</div>
+							<div class="content">
+								index an stuff
+							</div>
+						</div>					
+						<div class="home-item">
+							<div class="image">
+								<i class="icon search"></i>
+							</div>
+							<div class="title">
+								<h2>Retrieve</h2>
+							</div>
+							<div class="content">
+								retrive an stuff
+							</div>
+						</div>
+					</div>
+					<div class="main-content crawler" style="display:none">
+						I'm the crawler modafucka
+					</div>
+					<div class="main-content indexer" style="display:none">
+						I'm the indexer Modafucka
+					</div>
+					<div class="main-content retriever" style="display:none">
+						and I'mt the fucking retriever
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>
+
+</html>
